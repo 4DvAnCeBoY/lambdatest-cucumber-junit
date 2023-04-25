@@ -80,7 +80,18 @@ public class StepDefinitions {
         //and to make it available in your step definitions.
         PickleStepTestStep currentStepDef = stepDefs
                 .get(currentStepDefIndex);
-                driver.executeScript("lambdatest_executor: {\"action\": \"stepcontext\", \"arguments\": {\"data\": "+ currentStepDef.getStepText()+", \"level\": \"info\"}}");
+
+                HashMap<String, Object> lambdatestExecutor = new HashMap<>();
+                HashMap<String, Object> arguments = new HashMap<>();
+        
+                arguments.put("data", currentStepDef.getStepText());
+                arguments.put("level", "info");
+        
+                lambdatestExecutor.put("action", "stepcontext");
+                lambdatestExecutor.put("arguments", arguments);
+
+                driver.executeScript("lambdatest_executor:"+lambdatestExecutor.toString());
+                // driver.executeScript("lambdatest_executor"+":" +"{\"action\": \"stepcontext\", \"arguments\": {\"data\": \" "+ currentStepDef.getStepText() +", \"level\": \"info\"}}");
     }
     
     @AfterStep
