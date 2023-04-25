@@ -90,7 +90,7 @@ public class StepDefinitions {
                 lambdatestExecutor.put("action", "stepcontext");
                 lambdatestExecutor.put("arguments", arguments);
 
-                driver.executeScript("lambdatest_executor:"+lambdatestExecutor.toString());
+                driver.executeScript("lambdatest_executor:"+lambdatestExecutor.toString(),"");
                 // driver.executeScript("lambdatest_executor"+":" +"{\"action\": \"stepcontext\", \"arguments\": {\"data\": \" "+ currentStepDef.getStepText() +", \"level\": \"info\"}}");
     }
     
