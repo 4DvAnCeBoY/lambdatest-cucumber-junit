@@ -1,8 +1,12 @@
 package io.cucumber;
 
+import cucumber.api.PickleStepTestStep;
 import cucumber.api.Scenario;
+import cucumber.api.TestCase;
 import cucumber.api.java.After;
+import cucumber.api.java.AfterStep;
 import cucumber.api.java.Before;
+import cucumber.api.java.BeforeStep;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -12,9 +16,13 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class StepDefinitions {
     private RemoteWebDriver driver;
@@ -47,6 +55,37 @@ public class StepDefinitions {
         driver = new RemoteWebDriver(new URL(LT_HUB_URL), browserOptions);
         sessionId = ((RemoteWebDriver) driver).getSessionId().toString();
         System.out.println(sessionId);
+    }
+
+    private int currentStepDefIndex = 0;
+
+    @BeforeStep
+    public void stepContextBeforeStep(Scenario scenario) throws Exception {
+    
+        Field f = scenario.getClass().getDeclaredField("testCase");
+        f.setAccessible(true);
+        TestCase r = (TestCase) f.get(scenario);
+    
+        //You need to filter out before/after hooks
+        List<PickleStepTestStep> stepDefs = r.getTestSteps()
+                .stream()
+                .filter(x -> x instanceof PickleStepTestStep)
+                .map(x -> (PickleStepTestStep) x)
+                .collect(Collectors.toList());
+    
+    
+        //This object now holds the information about the current step definition
+        //If you are using pico container 
+        //just store it somewhere in your world state object 
+        //and to make it available in your step definitions.
+        PickleStepTestStep currentStepDef = stepDefs
+                .get(currentStepDefIndex);
+                driver.executeScript("lambdatest_executor: {\"action\": \"stepcontext\", \"arguments\": {\"data\": "+ currentStepDef.getStepText()+", \"level\": \"info\"}}");
+    }
+    
+    @AfterStep
+    public void stepContextAfterStep(Scenario scenario) {
+        currentStepDefIndex += 1;
     }
 
     @After
